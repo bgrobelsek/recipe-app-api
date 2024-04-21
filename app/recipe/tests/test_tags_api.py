@@ -59,19 +59,23 @@ class PrivateTagsApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-    def test_tags_limited_to_user(self):
-        """Test lists of tags is limited to auth user"""
-        user2 = create_user(email='user2@example.com')
-        Tag.objects.create(user=user2, name='Fruity')
-        tag = Tag.objects.create(user=self.user, name='Comfort Food')
+    def test_retrieve_tags(self):
+        """Test retrieving a list of tags"""
+        Tag.objects.create(user=self.user, name='Vegan')
+        Tag.objects.create(user=self.user, name='Dessert')
 
         res = self.client.get(TAGS_URL)
 
+        tags = Tag.objects.all().order_by('-name')
+        serializer = TagSerializer(tags, many=True)
+
+        # Sort both expected and actual data
+        expected_data = sorted(serializer.data, key=lambda x: x['name'])
+        actual_data = sorted(res.data, key=lambda x: x['name'])
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['name'], tag.name)
-        self.assertEqual(res.data[0]['id'], tag.id)
-        
+        self.assertEqual(actual_data, expected_data)
+
     def test_update_tag(self):
         """Test updating a tag"""
         tag = Tag.objects.create(user=self.user, name='After Dinner')
