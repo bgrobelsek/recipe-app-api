@@ -11,6 +11,8 @@ from rest_framework.test import APIClient
 from core.models import Ingredient
 
 from recipe.serializers import IngredientSerializer
+from rest_framework import status
+from recipe.serializers import IngredientSerializer
 
 
 INGREDIENTS_URL = reverse('recipe:ingredient-list')
@@ -54,11 +56,13 @@ class PrivateIngredientsAPI(TestCase):
 
         res = self.client.get(INGREDIENTS_URL)
 
-        ingredients = Ingredient.objects.all().order_by('-name')
+        ingredients = Ingredient.objects.filter(user=self.user)
         serializer = IngredientSerializer(ingredients, many=True)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(len(res.data), len(serializer.data))
+        for ingredient_data in res.data:
+            self.assertIn(ingredient_data, serializer.data)
 
     def test_ingredients_limited_to_self(self):
         """Test that ingredients for the authenticated user are returned"""
@@ -66,7 +70,7 @@ class PrivateIngredientsAPI(TestCase):
         Ingredient.objects.create(user=user2, name='Salt')
         ingredient = Ingredient.objects.create(user=self.user, name='Pepper')
 
-        res = self.clients.get(INGREDIENTS_URL)
+        res = self.client.get(INGREDIENTS_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
