@@ -24,7 +24,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from core.models import Recipe
 from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
-from recipe.tests.test_recipe_api import create_user, create_recipe, detail_url
+#from recipe.tests.test_recipe_api import create_user, create_recipe, detail_url
 
 from recipe.serializers import (
     RecipeSerializer,
@@ -46,7 +46,7 @@ def image_upload_url(recipe_id):
 
 
 def create_recipe(user, **params):
-    """Create amd retiurn a sample recipe"""
+    """Create and return a sample recipe"""
     defaults = {
         "title": "Sample recipe title",
         "time_minutes": 22,

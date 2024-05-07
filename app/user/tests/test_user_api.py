@@ -111,11 +111,12 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve_user_unauthorized(self):
-        """Test auth is required for users"""
-        self.client.force.authenticate(user=None)
+        """Test that authentication is required for retrieving user profile"""
+        # self.client.force_authenticate(user=None)
         res = self.client.get(ME_URL)
-
+        
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 
 class PrivateUserApiTests(TestCase):
